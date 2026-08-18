@@ -342,6 +342,14 @@ strong, b { font-weight: 700; }
   height: 100%;
   object-fit: cover;
   object-position: center;
+  /* The transform below is what gets this element promoted to its own
+     compositing layer on hover, and a composited child's own layer is not
+     reliably clipped by an ancestor's overflow: hidden alone (this is the
+     square-corners-while-hovering bug). Rounding the element itself closes
+     that gap regardless of what layer it ends up on — no compositing trick
+     on the ancestor required, so it doesn't reintroduce the stale-paint
+     scroll bug that trick caused. */
+  border-radius: inherit;
   transition: transform 0.45s var(--ease);
 }
 
