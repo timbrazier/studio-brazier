@@ -318,11 +318,13 @@ strong, b { font-weight: 700; }
   /* Clip the artwork here, not just on the tile: while the image animates
      its scale the browser composites it onto its own layer, which can
      escape an ancestor's border-radius clip (squared corners mid-hover in
-     Chrome/Safari). Rounding this box and promoting it with translateZ(0)
-     keeps the clip on the same layer as the animation. */
+     Chrome/Safari). clip-path applies at compositing time, so it holds for
+     that layer — unlike translateZ(0), it does this without permanently
+     promoting a layer, which inside CSS columns gets painted at its
+     pre-column flow position (ghost tiles below the grid). */
   overflow: hidden;
   border-radius: inherit;
-  transform: translateZ(0);
+  clip-path: inset(0 round var(--radius));
 }
 
 /* Each export is a finished tile with its background baked in, so it fills the
@@ -334,6 +336,7 @@ strong, b { font-weight: 700; }
   height: 100%;
   object-fit: cover;
   object-position: center;
+  border-radius: inherit;
   transition: transform 0.45s var(--ease);
 }
 
