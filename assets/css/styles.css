@@ -359,9 +359,17 @@ strong, b { font-weight: 700; }
 /* Hover / tap panel */
 .tile__panel {
   grid-area: 1 / 1;
-  /* The media backdrop is absolutely positioned so it would otherwise paint
-     above this in-flow panel; grid items take z-index without position. */
+  /* Grid items take z-index without needing position, which is what keeps
+     this above the media backdrop despite neither being positioned. */
   z-index: 1;
+  /* This element's own opacity transition promotes it to its own
+     compositing layer while fading in, and — same as the artwork below —
+     a composited layer isn't reliably clipped by the ancestor .tile's
+     overflow: hidden alone: without this, the tile's own background color
+     shows through the corners while the panel is visible (Chrome/Safari).
+     Rounding the panel itself, independent of the ancestor's clip, is
+     what actually fixes it. */
+  border-radius: inherit;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
