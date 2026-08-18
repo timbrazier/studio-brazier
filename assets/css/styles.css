@@ -234,19 +234,47 @@ strong, b { font-weight: 700; }
 }
 
 /* Masonry grid ------------------------------------------------------------- */
+/* Masonry, without CSS multi-column.
+   column-count fragments its children across "columns" at the engine level,
+   and that fragmentation does not reliably coexist with a child (or even
+   the column item itself) being promoted to its own GPU compositing
+   layer — which every tile's hover transform and hover-panel fade do. In
+   testing this showed up two ways depending on what got promoted: tiles
+   painted a second time at a pre-fragmentation position after scrolling,
+   or a tile's rounded corners failing to clip a composited child. Neither
+   is a mistake in a specific rule; the fragmentation model itself is the
+   conflict, so no per-element fix holds reliably.
+   Instead, assets/js/main.js measures each item's real height and places
+   it explicitly on an ordinary grid — a single column of many 1px auto-rows,
+   with every item's grid-row and grid-column set directly. No fragments,
+   so composited descendants behave like they do everywhere else on the
+   page. Without JavaScript this stays a plain single-column block list
+   (see .grid below); JS is what turns it into the masonry. */
 .grid {
-  column-count: 3;
-  column-gap: var(--grid-gap);
+  display: block;
 }
 
 .grid > * {
-  break-inside: avoid;
-  page-break-inside: avoid; /* legacy Safari/Firefox */
   margin-bottom: var(--grid-gap);
 }
 
-/* Force the column breaks so the three stacks match the design exactly. */
-.grid > [data-col-start] { break-before: column; }
+.grid.is-masonry {
+  display: grid;
+  grid-auto-rows: 1px;
+  row-gap: 0;
+  column-gap: var(--grid-gap);
+  /* Grid's default stretch would resize every item to fill its allocated
+     track — fatal here, since tracks start as a single 1px auto-row before
+     main.js has measured anything and assigned the real span. Items keep
+     their own natural height throughout; grid-row only reserves the matching
+     vertical space around them. */
+  align-items: start;
+}
+
+.grid.is-masonry > * {
+  margin-bottom: 0;
+  min-width: 0;
+}
 
 /* Category label card ------------------------------------------------------ */
 .category {
@@ -518,13 +546,11 @@ strong, b { font-weight: 700; }
    Responsive
    ========================================================================== */
 
-/* Two columns */
+/* Two columns — the column count itself is set by main.js reading this
+   breakpoint (kept in sync with --breakpoint-2col below); this block only
+   carries the spacing token change. */
 @media (max-width: 1060px) {
-  :root { --gutter: 36px; --grid-gap: 28px; }
-  .grid { column-count: 2; }
-  /* Let the browser balance the two columns instead of forcing the design's
-     three-stack break points. */
-  .grid > [data-col-start] { break-before: auto; }
+  :root { --gutter: 36px; --grid-gap: 28px; --breakpoint-2col: 1; }
 }
 
 @media (max-width: 900px) {
@@ -549,10 +575,8 @@ strong, b { font-weight: 700; }
 
 /* Single column */
 @media (max-width: 640px) {
-  :root { --gutter: 22px; --grid-gap: 20px; --radius: 16px; }
+  :root { --gutter: 22px; --grid-gap: 20px; --radius: 16px; --breakpoint-1col: 1; }
   body { font-size: 17px; line-height: 1.75; }
-
-  .grid { column-count: 1; }
 
   .logo img { width: 164px; }
   .site-nav a { font-size: 17px; }

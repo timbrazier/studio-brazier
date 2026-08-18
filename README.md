@@ -91,11 +91,36 @@ GitHub's own guide has the current values if they ever change:
 
 ## Notes on how it's built
 
-- **The grid** is CSS multi-column. On wide screens, `data-col-start` on two tiles
-  forces the column breaks so the three stacks match the design exactly. Below
-  1060px that's released and the browser balances two columns; below 640px it
-  becomes a single column. Tile heights come from `aspect-ratio` values taken
-  from the design, so the rhythm holds at every width.
+- **The grid is a JavaScript masonry, not CSS multi-column.** An earlier
+  version used `column-count`, and hit a real, hard-to-pin-down bug: CSS
+  multi-column fragments its children, and that fragmentation does not
+  reliably coexist with a child being promoted to its own GPU compositing
+  layer — which every tile's hover transform and hover-panel fade do. It
+  showed up two ways depending on what got promoted: a tile painting a second
+  time at a stale position after scrolling, or a tile's rounded corners
+  failing to clip a composited child, on a delay of about a second after the
+  hover animation itself had finished. Three rounds of fixing whichever
+  specific element was implicated each held up in automated testing and
+  still recurred live, which is what pointed at the layout mechanism itself
+  rather than any one CSS rule.
+
+  `assets/js/main.js` now measures every tile and category card's real
+  height and places it explicitly on an ordinary `display: grid` — a single
+  column of many 1px auto-rows, with each item's `grid-row` and
+  `grid-column` set directly. At the 3-column breakpoint the column split
+  points are the same `[data-col-start]` markers the design was built
+  against; at 2 columns there's no design-fixed split, so it picks the one
+  break that balances the two columns' total height most evenly, the same
+  thing CSS multi-column's own balancing did. Nothing is fragmented, so
+  composited descendants behave like they do everywhere else on the page.
+
+  Without JavaScript, `.grid` is a plain single-column block list (see the
+  base `.grid` rule in `assets/css/styles.css`) — already a complete,
+  correctly spaced layout, just always one column; JS is what turns it into
+  the 2/3-column masonry. Tile heights themselves still come from
+  `aspect-ratio` custom properties taken from the design, growing to fit a
+  tile's own hover copy where that's taller — the masonry measures whatever
+  height that produces, it doesn't set it.
 - **The hover panel** is CSS-driven (`:hover` and `:focus-within`), so it works
   without JavaScript and for keyboard users. On touch devices, where there is no
   hover, `main.js` makes a tap open the panel and a tap elsewhere close it.
