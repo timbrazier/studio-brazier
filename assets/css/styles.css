@@ -311,20 +311,26 @@ strong, b { font-weight: 700; }
 }
 
 .tile__media {
-  /* The artwork is a backdrop: out of flow so its intrinsic size can't
-     influence the card. Only the ratio spacer and the panel copy do. */
-  position: absolute;
-  inset: 0;
-  /* Clip the artwork here, not just on the tile: while the image animates
-     its scale the browser composites it onto its own layer, which can
-     escape an ancestor's border-radius clip (squared corners mid-hover in
-     Chrome/Safari). clip-path applies at compositing time, so it holds for
-     that layer — unlike translateZ(0), it does this without permanently
-     promoting a layer, which inside CSS columns gets painted at its
-     pre-column flow position (ghost tiles below the grid). */
+  /* A normal, in-flow grid item stacked on the same cell as the ratio
+     spacer and the panel — not position: absolute. That combination
+     (out-of-flow + clip-path) forces the browser to composite this box on
+     its own layer inside a CSS multi-column ancestor, and Chromium's
+     layer-raster cache does not reliably invalidate on scroll for that
+     case: hovering a tile, scrolling away and back left a stale frame
+     painted (an emptied tile here, a stuck hover panel elsewhere), with
+     computed styles reporting the correct state throughout — a paint bug,
+     not a state bug.
+     overflow: hidden alone clips the child during its hover transform, no
+     compositing trick required. min-width/height: 0 opt out of this grid
+     item's automatic minimum size, which is otherwise the image's
+     intrinsic size and would set a floor under the card's height — per
+     spec this is already 0 once overflow isn't visible, the explicit
+     values just make it unambiguous. */
+  grid-area: 1 / 1;
   overflow: hidden;
   border-radius: inherit;
-  clip-path: inset(0 round var(--radius));
+  min-width: 0;
+  min-height: 0;
 }
 
 /* Each export is a finished tile with its background baked in, so it fills the
@@ -336,7 +342,6 @@ strong, b { font-weight: 700; }
   height: 100%;
   object-fit: cover;
   object-position: center;
-  border-radius: inherit;
   transition: transform 0.45s var(--ease);
 }
 
