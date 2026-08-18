@@ -28,6 +28,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Turn Pages on via the API if it isn't already, rather than failing
+          # and requiring someone to flip it in Settings first.
+          enablement: true
 
       - name: Upload the site as an artifact
         uses: actions/upload-pages-artifact@v3
