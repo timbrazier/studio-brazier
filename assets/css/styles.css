@@ -225,10 +225,11 @@ strong, b { font-weight: 700; }
 .section-label {
   margin: 0 0 48px;
   font-family: var(--font-display);
-  font-size: 18px;
+  /* Same computed size as .intro .name: 1.35em of the body's 19px. */
+  font-size: 1.35em;
   font-weight: 400;
   line-height: 1.2;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -267,12 +268,16 @@ strong, b { font-weight: 700; }
 /* Project tile ------------------------------------------------------------- */
 .tile {
   position: relative;
-  display: block;
+  /* Artwork, hover panel and an invisible ratio spacer share one grid
+     cell, so the card is never shorter than its own hover copy: height =
+     max(the designed aspect ratio, the panel's content). The ratio lives on
+     the spacer, not the tile — aspect-ratio directly on a box with
+     overflow: hidden is allowed to clip its content instead of growing. */
+  display: grid;
+  /* One column pinned to the card's width — an auto column would size to
+     the copy's longest unwrapped line and overflow. */
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
-  /* The panel's type scales against the card's own height — see the container
-     queries below. Safe to size-contain: the card's height comes from its
-     aspect-ratio, never from its contents. */
-  container-type: size;
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--white);
@@ -295,8 +300,18 @@ strong, b { font-weight: 700; }
   color: inherit;
 }
 
+/* The designed proportions, as an invisible first grid item. */
+.tile::before {
+  content: "";
+  grid-area: 1 / 1;
+  aspect-ratio: var(--ratio, 1);
+}
+
 .tile__media {
-  height: 100%;
+  /* The artwork is a backdrop: out of flow so its intrinsic size can't
+     influence the card. Only the ratio spacer and the panel copy do. */
+  position: absolute;
+  inset: 0;
 }
 
 /* Each export is a finished tile with its background baked in, so it fills the
@@ -316,8 +331,10 @@ strong, b { font-weight: 700; }
 
 /* Hover / tap panel */
 .tile__panel {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
+  /* The media backdrop is absolutely positioned so it would otherwise paint
+     above this in-flow panel; grid items take z-index without position. */
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -367,52 +384,24 @@ strong, b { font-weight: 700; }
   text-transform: uppercase;
 }
 
-/* The cards run from 134px to 488px tall and the copy doesn't shrink to match,
-   so shorter cards step the panel down rather than overflow it. Keyed on the
-   card's own height, so it holds at every breakpoint rather than being tied to
-   viewport guesses. A narrower card needs more lines for the same words, which
-   is why the steps are closer together than the card sizes alone suggest. */
-@container (max-height: 340px) {
-  .tile__panel { padding: 22px; gap: 12px; }
-  .tile__title { margin-bottom: 4px; font-size: 21px; }
-  .tile__desc { font-size: 16px; line-height: 1.4; }
-  .tile__tag { padding: 9px 16px; font-size: 15px; }
-}
-
-/* Narrow *and* short is the real pinch — the two-column band makes the
-   narrowest cards on the site — so this step tests both. */
-@container ((max-height: 260px) or ((max-height: 295px) and (max-width: 320px))) {
-  .tile__panel { padding: 18px; gap: 8px; }
-  .tile__title { margin-bottom: 3px; font-size: 18.5px; }
-  .tile__desc { font-size: 14.5px; line-height: 1.38; }
-  .tile__tag { padding: 7px 13px; font-size: 13.5px; }
-}
-
-@container (max-height: 175px) {
-  .tile__panel { padding: 13px 14px; gap: 5px; }
-  .tile__title { margin-bottom: 2px; font-size: 16.5px; }
-  .tile__desc { font-size: 13px; line-height: 1.33; }
-  .tile__tag { padding: 5px 11px; font-size: 12px; }
-}
-
 /* Tile heights — ratios taken from the design (column width 360px).
    The colour behind each image is sampled from that image's own edge, so
    nothing flashes white while it loads and no seam shows at the corners. */
-.tile--pictorial-meadows { aspect-ratio: 360 / 419; background: #4d2680; }
-.tile--justice-digital   { aspect-ratio: 360 / 359; background: #ffffff; }
-.tile--come-home         { aspect-ratio: 360 / 439; background: #d7b659; }
-.tile--comoodle          { aspect-ratio: 360 / 280; background: #ffffff; }
+.tile--pictorial-meadows { --ratio: 360 / 419; background: #4d2680; }
+.tile--justice-digital   { --ratio: 360 / 359; background: #ffffff; }
+.tile--come-home         { --ratio: 360 / 439; background: #d7b659; }
+.tile--comoodle          { --ratio: 360 / 280; background: #ffffff; }
 
-.tile--one-one-five      { aspect-ratio: 360 / 355; background: #0395cc; }
-.tile--caja              { aspect-ratio: 360 / 326; background: #80bb27; }
-.tile--sixty-five        { aspect-ratio: 360 / 316; background: #ffffff; }
-.tile--elefriends        { aspect-ratio: 360 / 356; background: #ffcc00; }
-.tile--make-it-click     { aspect-ratio: 360 / 134; background: #00c6e1; }
+.tile--one-one-five      { --ratio: 360 / 355; background: #0395cc; }
+.tile--caja              { --ratio: 360 / 326; background: #80bb27; }
+.tile--sixty-five        { --ratio: 360 / 316; background: #ffffff; }
+.tile--elefriends        { --ratio: 360 / 356; background: #ffcc00; }
+.tile--make-it-click     { --ratio: 360 / 134; background: #00c6e1; }
 
-.tile--thrive            { aspect-ratio: 360 / 488; background: #ffffff; }
-.tile--good-things       { aspect-ratio: 360 / 223; background: #001364; }
-.tile--jay-brazier       { aspect-ratio: 360 / 380; background: #ffd5bf; }
-.tile--mindwell          { aspect-ratio: 360 / 277; background: #513b7e; }
+.tile--thrive            { --ratio: 360 / 488; background: #ffffff; }
+.tile--good-things       { --ratio: 360 / 223; background: #001364; }
+.tile--jay-brazier       { --ratio: 360 / 380; background: #ffd5bf; }
+.tile--mindwell          { --ratio: 360 / 277; background: #513b7e; }
 
 /* Contact ------------------------------------------------------------------ */
 .contact {
@@ -497,9 +486,6 @@ strong, b { font-weight: 700; }
 /* Two columns */
 @media (max-width: 1060px) {
   :root { --gutter: 36px; --grid-gap: 28px; }
-
-  /* Two columns of a narrow viewport are the smallest cards anywhere. */
-  .tile--make-it-click { aspect-ratio: 360 / 180; }
   .grid { column-count: 2; }
   /* Let the browser balance the two columns instead of forcing the design's
      three-stack break points. */
@@ -537,17 +523,11 @@ strong, b { font-weight: 700; }
   .site-nav a { font-size: 17px; }
 
   .intro { padding-block: 52px 40px; }
-  .section-label { margin-bottom: 28px; font-size: 17px; }
+  .section-label { margin-bottom: 28px; }
 
   .category { min-height: 92px; padding: 18px 22px; font-size: 22px; }
 
   .error-page h1 { font-size: 34px; }
-}
-
-/* Small phones: keep the very short tiles from squashing their artwork */
-@media (max-width: 420px) {
-  .tile--make-it-click { aspect-ratio: 360 / 210; }
-  .tile--good-things { aspect-ratio: 360 / 260; }
 }
 
 @media (prefers-reduced-motion: reduce) {
