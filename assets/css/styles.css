@@ -81,6 +81,12 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
+  /* Keep the footer at the bottom of the viewport on short pages:
+     the body fills the screen and <main> absorbs the spare height. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh; /* mobile browsers: exclude the collapsing URL bar */
   font-synthesis: none;
   background: var(--cream);
   color: var(--ink);
@@ -94,6 +100,8 @@ body {
 }
 
 img, svg { display: block; max-width: 100%; }
+
+main { flex: 1 0 auto; }
 
 a { color: inherit; }
 
