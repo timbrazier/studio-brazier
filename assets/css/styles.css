@@ -274,6 +274,9 @@ strong, b { font-weight: 700; }
      the spacer, not the tile — aspect-ratio directly on a box with
      overflow: hidden is allowed to clip its content instead of growing. */
   display: grid;
+  /* Contain descendants' stacking so composited children can't paint
+     outside the card while animating. */
+  isolation: isolate;
   /* One column pinned to the card's width — an auto column would size to
      the copy's longest unwrapped line and overflow. */
   grid-template-columns: minmax(0, 1fr);
@@ -312,6 +315,14 @@ strong, b { font-weight: 700; }
      influence the card. Only the ratio spacer and the panel copy do. */
   position: absolute;
   inset: 0;
+  /* Clip the artwork here, not just on the tile: while the image animates
+     its scale the browser composites it onto its own layer, which can
+     escape an ancestor's border-radius clip (squared corners mid-hover in
+     Chrome/Safari). Rounding this box and promoting it with translateZ(0)
+     keeps the clip on the same layer as the animation. */
+  overflow: hidden;
+  border-radius: inherit;
+  transform: translateZ(0);
 }
 
 /* Each export is a finished tile with its background baked in, so it fills the
