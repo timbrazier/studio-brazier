@@ -172,7 +172,13 @@ strong, b { font-weight: 700; }
 .logo:hover img { transform: scale(1.03); }
 .logo:active img { transform: scale(0.99); }
 
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
 .site-nav a {
+  flex-shrink: 0;
   font-size: 19px;
   text-decoration: none;
   padding-bottom: 2px;
@@ -181,6 +187,27 @@ strong, b { font-weight: 700; }
 }
 .site-nav a:hover,
 .site-nav a[aria-current="page"] { border-bottom-color: var(--ink); }
+
+/* Social links — header and footer share these rules. */
+.social-links {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 16px;
+}
+.social-link {
+  display: inline-flex;
+  color: inherit;
+  opacity: 0.85;
+  transition: opacity 0.2s var(--ease);
+}
+.social-link:hover,
+.social-link:focus-visible { opacity: 1; }
+.social-link svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
 
 /* Focus visibility --------------------------------------------------------- */
 :focus-visible {
@@ -496,6 +523,13 @@ strong, b { font-weight: 700; }
   padding-block: 52px 60px;
   color: var(--ink);
 }
+.site-footer__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+}
 .site-footer p {
   margin: 0;
   font-size: 19px;
@@ -579,7 +613,10 @@ strong, b { font-weight: 700; }
   body { font-size: 17px; line-height: 1.75; }
 
   .logo img { width: 164px; }
+  .site-nav { gap: 18px; }
   .site-nav a { font-size: 17px; }
+  .social-links { gap: 12px; }
+  .social-link svg { width: 20px; height: 20px; }
 
   .intro { padding-block: 52px 40px; }
   .section-label { margin-bottom: 28px; }
@@ -587,6 +624,16 @@ strong, b { font-weight: 700; }
   .category { min-height: 92px; padding: 18px 22px; font-size: 22px; }
 
   .error-page h1 { font-size: 34px; }
+}
+
+/* The very narrowest supported phones (iPhone SE and similar, ~320px) don't
+   have room for the logo plus "About me" plus both icons at the sizes above
+   without a few more pixels back. */
+@media (max-width: 340px) {
+  :root { --gutter: 16px; }
+  .logo img { width: 148px; }
+  .site-nav { gap: 12px; }
+  .social-links { gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
