@@ -57,10 +57,17 @@
     <div class="container">
       <h2 class="section-label" id="work-heading">My projects</h2>
 
+      <div class="filters" role="group" aria-label="Filter projects by category">
+        <button class="filter-chip" type="button" data-filter="service-design" aria-pressed="false">Service design</button>
+        <button class="filter-chip" type="button" data-filter="product-design" aria-pressed="false">Product design</button>
+        <button class="filter-chip" type="button" data-filter="brand-design" aria-pressed="false">Brand design</button>
+        <button class="filter-chip" type="button" data-filter="experience-design" aria-pressed="false">Experience design</button>
+      </div>
+
       <div class="grid">
 
         <!-- Column one -->
-        <article class="tile tile--pictorial-meadows">
+        <article class="tile tile--pictorial-meadows" data-category="product-design">
           <div class="tile__media">
             <img src="assets/img/projects/pictorial-meadows.png" alt="Pictorial Meadows" width="880" height="1078" loading="lazy">
           </div>
@@ -76,9 +83,7 @@
           </button>
         </article>
 
-        <div class="category">Service<br>design</div>
-
-        <article class="tile tile--justice-digital">
+        <article class="tile tile--justice-digital" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/justice-digital.png" alt="Justice Digital" width="732" height="821" loading="lazy">
           </div>
@@ -94,7 +99,7 @@
           </button>
         </article>
 
-        <article class="tile tile--come-home">
+        <article class="tile tile--come-home" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/come-home.png" alt="Come Home, South Yorkshire Housing Association" width="468" height="546" loading="lazy">
           </div>
@@ -110,7 +115,7 @@
           </button>
         </article>
 
-        <article class="tile tile--comoodle">
+        <article class="tile tile--comoodle" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/comoodle.png" alt="Comoodle" width="523" height="539" loading="lazy">
           </div>
@@ -127,7 +132,7 @@
         </article>
 
         <!-- Column two -->
-        <article class="tile tile--one-one-five" data-col-start>
+        <article class="tile tile--one-one-five" data-col-start data-category="product-design">
           <div class="tile__media">
             <img src="assets/img/projects/one-one-five.png" alt="115.1" width="1024" height="1024" loading="lazy">
           </div>
@@ -143,7 +148,7 @@
           </button>
         </article>
 
-        <article class="tile tile--caja">
+        <article class="tile tile--caja" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/caja.png" alt="CAJA" width="741" height="947" loading="lazy">
           </div>
@@ -159,7 +164,7 @@
           </button>
         </article>
 
-        <article class="tile tile--sixty-five">
+        <article class="tile tile--sixty-five" data-category="experience-design">
           <div class="tile__media">
             <img src="assets/img/projects/sixty-five-high-street.png" alt="65 High Street" width="463" height="449" loading="lazy">
           </div>
@@ -175,9 +180,7 @@
           </button>
         </article>
 
-        <div class="category">Brand<br>design</div>
-
-        <article class="tile tile--elefriends">
+        <article class="tile tile--elefriends" data-category="product-design">
           <div class="tile__media">
             <img src="assets/img/projects/elefriends.png" alt="Elefriends" width="552" height="552" loading="lazy">
           </div>
@@ -193,7 +196,7 @@
           </button>
         </article>
 
-        <article class="tile tile--make-it-click">
+        <article class="tile tile--make-it-click" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/make-it-click.png" alt="Make it Click" width="564" height="419" loading="lazy">
           </div>
@@ -210,7 +213,7 @@
         </article>
 
         <!-- Column three -->
-        <article class="tile tile--thrive" data-col-start>
+        <article class="tile tile--thrive" data-col-start data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/thrive-by-design.png" alt="Thrive by Design" width="573" height="658" loading="lazy">
           </div>
@@ -226,9 +229,7 @@
           </button>
         </article>
 
-        <div class="category">Experience<br>design</div>
-
-        <article class="tile tile--good-things">
+        <article class="tile tile--good-things" data-category="service-design">
           <div class="tile__media">
             <img src="assets/img/projects/good-things.png" alt="Good Things Foundation" width="622" height="622" loading="lazy">
           </div>
@@ -244,7 +245,7 @@
           </button>
         </article>
 
-        <article class="tile tile--jay-brazier">
+        <article class="tile tile--jay-brazier" data-category="brand-design">
           <div class="tile__media">
             <img src="assets/img/projects/jay-brazier.png" alt="Jay Brazier Beauty" width="730" height="646" loading="lazy">
           </div>
@@ -260,9 +261,7 @@
           </button>
         </article>
 
-        <div class="category">Product<br>design</div>
-
-        <article class="tile tile--mindwell">
+        <article class="tile tile--mindwell" data-category="product-design">
           <div class="tile__media">
             <img src="assets/img/projects/mindwell.png" alt="MindWell" width="570" height="682" loading="lazy">
           </div>

@@ -16,15 +16,21 @@
      styles.css for why this replaced CSS multi-column. Progressive
      enhancement: without this running, .grid is a plain single-column
      block list (the base .grid rule), which is already a complete,
-     correctly spaced layout — this only upgrades it to 2 or 3 columns. */
+     correctly spaced layout — this only upgrades it to 2 or 3 columns.
+     The filter chips above the grid (see below) hide non-matching tiles
+     and re-run this against whatever's left. */
   var grid = document.querySelector('.grid');
   if (grid) {
     var gridItems = Array.prototype.slice.call(grid.children);
+    var activeFilter = null;
 
     /* Split children into column-major groups in DOM order, matching how
        CSS multi-column used to fill: column 1 in full, then column 2, etc.
        The split points are the same [data-col-start] markers the design
-       was built against, not a computed guess. */
+       was built against, not a computed guess. Only valid for the full,
+       unfiltered set — a filtered subset uses balanceColumns instead,
+       since the fixed split points would leave whichever column lost the
+       most tiles looking sparse or empty. */
     function threeColumnGroups() {
       var groups = [[], [], []];
       var col = 0;
@@ -35,23 +41,39 @@
       return groups;
     }
 
-    /* For 2 columns there's no design-fixed split point, so pick the one
-       break that balances the two columns' total height most evenly —
-       the same thing CSS multi-column's own balancing did. */
-    function twoColumnGroups(heights, gap) {
-      var n = gridItems.length;
-      var prefix = [0];
-      for (var i = 0; i < n; i++) prefix.push(prefix[i] + heights[i] + gap);
-      var total = prefix[n];
-      var bestK = 1, bestDiff = Infinity;
-      for (var k = 1; k < n; k++) {
-        var diff = Math.abs(prefix[k] - (total - prefix[k]));
-        if (diff < bestDiff) { bestDiff = diff; bestK = k; }
-      }
-      return [gridItems.slice(0, bestK), gridItems.slice(bestK)];
+    /* Bin-pack DOM order across N columns, always adding the next item to
+       whichever column is currently shortest — the same result CSS
+       multi-column's own balancing gave the unfiltered 2-column view, now
+       generalised to any column count so a filtered set (any number of
+       columns) balances sensibly too, since it has no fixed split to
+       fall back on. */
+    function balanceColumns(items, heights, gap, columns) {
+      var groups = [];
+      var colHeights = [];
+      for (var c = 0; c < columns; c++) { groups.push([]); colHeights.push(0); }
+      items.forEach(function (el, i) {
+        var target = 0;
+        for (var c = 1; c < columns; c++) {
+          if (colHeights[c] < colHeights[target]) target = c;
+        }
+        groups[target].push(el);
+        colHeights[target] += heights[i] + gap;
+      });
+      return groups;
+    }
+
+    function visibleItems() {
+      return gridItems.filter(function (el) {
+        return !activeFilter || el.dataset.category === activeFilter;
+      });
     }
 
     function layout() {
+      var items = visibleItems();
+      gridItems.forEach(function (el) {
+        el.classList.toggle('tile--filtered-out', items.indexOf(el) === -1);
+      });
+
       var root = getComputedStyle(document.documentElement);
       var columns = root.getPropertyValue('--breakpoint-1col').trim() ? 1
         : root.getPropertyValue('--breakpoint-2col').trim() ? 2 : 3;
@@ -73,20 +95,20 @@
          auto-places at the column width the line above just set — the
          auto-placement position doesn't matter for measuring, only the
          resulting width does, and every column is the same width. */
-      gridItems.forEach(function (el) {
+      items.forEach(function (el) {
         el.style.gridColumn = '';
         el.style.gridRow = '';
       });
       var gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
-      var heights = gridItems.map(function (el) {
+      var heights = items.map(function (el) {
         return el.getBoundingClientRect().height;
       });
 
-      var groups = columns === 3
+      var groups = (!activeFilter && columns === 3)
         ? threeColumnGroups()
-        : twoColumnGroups(heights, gap);
+        : balanceColumns(items, heights, gap, columns);
 
-      var indexOf = new Map(gridItems.map(function (el, i) { return [el, i]; }));
+      var indexOf = new Map(items.map(function (el, i) { return [el, i]; }));
 
       groups.forEach(function (colItems, colIndex) {
         var cursor = 1;
@@ -110,6 +132,21 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(layout);
     }
+
+    /* Filter chips — tapping one shows only matching tiles; tapping the
+       already-active one clears the filter. Single-select: choosing a
+       different chip replaces rather than adds to the filter. */
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip'));
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var filter = chip.dataset.filter;
+        activeFilter = activeFilter === filter ? null : filter;
+        chips.forEach(function (c) {
+          c.setAttribute('aria-pressed', c.dataset.filter === activeFilter ? 'true' : 'false');
+        });
+        layout();
+      });
+    });
   }
 
   var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile'));
