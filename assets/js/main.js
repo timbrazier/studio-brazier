@@ -133,16 +133,16 @@
       document.fonts.ready.then(layout);
     }
 
-    /* Filter chips — tapping one shows only matching tiles; tapping the
-       already-active one clears the filter. Single-select: choosing a
-       different chip replaces rather than adds to the filter. */
+    /* Filter chips — radio-style single-select. "All" clears the filter;
+       any other chip shows only matching tiles and replaces whatever was
+       previously selected. */
     var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip'));
     chips.forEach(function (chip) {
       chip.addEventListener('click', function () {
         var filter = chip.dataset.filter;
-        activeFilter = activeFilter === filter ? null : filter;
+        activeFilter = filter === 'all' ? null : filter;
         chips.forEach(function (c) {
-          c.setAttribute('aria-pressed', c.dataset.filter === activeFilter ? 'true' : 'false');
+          c.setAttribute('aria-pressed', c.dataset.filter === filter ? 'true' : 'false');
         });
         layout();
       });
